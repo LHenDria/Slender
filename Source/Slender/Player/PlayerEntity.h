@@ -2,6 +2,7 @@
 
 #include "CoreMinimal.h"
 #include "GameFramework/Character.h"
+#include "GameFramework/CharacterMovementComponent.h"
 #include "PlayerEntity.generated.h"
 
 UCLASS()
@@ -23,9 +24,19 @@ public:
 protected:
 	UPROPERTY(EditAnywhere)
 	class UCameraComponent* Camera;
+	UPROPERTY(EditAnywhere)
+	class USpotLightComponent* Flashlight;
 
+	UPROPERTY(EditAnywhere)
+	float MoveSpeed = 500.0f;
+	UPROPERTY(EditAnywhere)
+	float SprintSpeed = 800.0f;
+	
 	void MoveX(float Input);
 	void MoveY(float Input);
 	void TurnX(float Input);
 	void TurnY(float Input);
+	void StartSprint();
+	void StopSprint();
+	void ToggleFlashlight();
 };

@@ -1,11 +1,18 @@
 #include "Slender/Player/PlayerEntity.h"
 #include "Camera/CameraComponent.h"
+#include "Components/SpotLightComponent.h"
+#include "GameFramework/CharacterMovementComponent.h"
 
 APlayerEntity::APlayerEntity() {
 	PrimaryActorTick.bCanEverTick = true;
+	GetCharacterMovement()->MaxAcceleration = 999999;
+	
 	Camera = CreateDefaultSubobject<UCameraComponent>(TEXT("PlayerEntityCamera"));
 	Camera->SetupAttachment(RootComponent);
 	Camera->bUsePawnControlRotation = true;
+
+	Flashlight = CreateDefaultSubobject<USpotLightComponent>(TEXT("Flashlight"));
+	Flashlight->SetupAttachment(Camera);
 }
 
 void APlayerEntity::BeginPlay() {
@@ -24,6 +31,9 @@ void APlayerEntity::SetupPlayerInputComponent(UInputComponent* PlayerInputCompon
 	PlayerInputComponent->BindAxis("MoveY", this, &APlayerEntity::MoveY);
 	PlayerInputComponent->BindAxis("CameraX", this, &APlayerEntity::TurnX);
 	PlayerInputComponent->BindAxis("CameraY", this, &APlayerEntity::TurnY);
+	PlayerInputComponent->BindAction("Sprint", IE_Pressed, this, &APlayerEntity::StartSprint);
+	PlayerInputComponent->BindAction("Sprint", IE_Released, this, &APlayerEntity::StopSprint);
+	PlayerInputComponent->BindAction("Flashlight", IE_Pressed, this, &APlayerEntity::ToggleFlashlight);
 }
 
 void APlayerEntity::MoveX(float Input) {
@@ -44,3 +54,14 @@ void APlayerEntity::TurnY(float Input) {
 	AddControllerPitchInput(Input);
 }
 
+void APlayerEntity::StartSprint() {
+	GetCharacterMovement()->MaxWalkSpeed = SprintSpeed;
+}
+
+void APlayerEntity::StopSprint() {
+	GetCharacterMovement()->MaxWalkSpeed = MoveSpeed;
+}
+
+void APlayerEntity::ToggleFlashlight() {
+	Flashlight->ToggleVisibility();
+}
