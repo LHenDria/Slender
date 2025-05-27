@@ -2,6 +2,7 @@
 #include "Camera/CameraComponent.h"
 #include "Components/SpotLightComponent.h"
 #include "GameFramework/CharacterMovementComponent.h"
+#include "Kismet/GameplayStatics.h"
 
 APlayerEntity::APlayerEntity() {
 	PrimaryActorTick.bCanEverTick = true;
@@ -14,6 +15,7 @@ APlayerEntity::APlayerEntity() {
 	Flashlight = CreateDefaultSubobject<USpotLightComponent>(TEXT("Flashlight"));
 	Flashlight->SetupAttachment(Camera);
 }
+
 
 void APlayerEntity::BeginPlay() {
 	Super::BeginPlay();
