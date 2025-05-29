@@ -2,7 +2,6 @@
 
 #include "CoreMinimal.h"
 #include "GameFramework/Character.h"
-#include "GameFramework/CharacterMovementComponent.h"
 #include "PlayerEntity.generated.h"
 
 UCLASS()
@@ -14,7 +13,6 @@ public:
 	APlayerEntity();
 
 protected:
-
 	virtual void BeginPlay() override;
 	
 public:	
@@ -39,4 +37,5 @@ protected:
 	void StartSprint();
 	void StopSprint();
 	void ToggleFlashlight();
+	void DetectPage();
 };

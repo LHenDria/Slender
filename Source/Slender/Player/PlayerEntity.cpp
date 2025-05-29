@@ -2,7 +2,7 @@
 #include "Camera/CameraComponent.h"
 #include "Components/SpotLightComponent.h"
 #include "GameFramework/CharacterMovementComponent.h"
-#include "Kismet/GameplayStatics.h"
+#include "Slender/Pages/PageEntity.h"
 
 APlayerEntity::APlayerEntity() {
 	PrimaryActorTick.bCanEverTick = true;
@@ -36,6 +36,7 @@ void APlayerEntity::SetupPlayerInputComponent(UInputComponent* PlayerInputCompon
 	PlayerInputComponent->BindAction("Sprint", IE_Pressed, this, &APlayerEntity::StartSprint);
 	PlayerInputComponent->BindAction("Sprint", IE_Released, this, &APlayerEntity::StopSprint);
 	PlayerInputComponent->BindAction("Flashlight", IE_Pressed, this, &APlayerEntity::ToggleFlashlight);
+	PlayerInputComponent->BindAction("DetectPage", IE_Pressed, this, &APlayerEntity::DetectPage);
 }
 
 void APlayerEntity::MoveX(float Input) {
@@ -66,4 +67,22 @@ void APlayerEntity::StopSprint() {
 
 void APlayerEntity::ToggleFlashlight() {
 	Flashlight->ToggleVisibility();
+}
+
+void APlayerEntity::DetectPage() {
+	FVector camera_location = Camera->GetComponentLocation();
+	FVector looking_direction = Camera->GetForwardVector();
+	FVector end = camera_location + looking_direction * 200.0f;
+
+	FHitResult hit_result;
+	FCollisionQueryParams params;
+	params.AddIgnoredActor(this);
+
+	if (GetWorld()->LineTraceSingleByChannel(hit_result, camera_location, end, ECC_Visibility, params)) {
+		DrawDebugLine(GetWorld(), camera_location, end, FColor::Yellow, false, 3.0f, 0, 2.0f);
+		APageEntity *page = Cast<APageEntity>(hit_result.GetActor());
+		if (page) {
+			page->PickUpPage();
+		}
+	}
 }
