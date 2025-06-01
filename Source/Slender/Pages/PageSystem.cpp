@@ -2,6 +2,7 @@
 
 #include "PageEntity.h"
 #include "Kismet/GameplayStatics.h"
+#include "PageSpawnSystem.h"
 
 APageSystem::APageSystem() {
 	PrimaryActorTick.bCanEverTick = true;
@@ -22,7 +23,7 @@ void APageSystem::Tick(float DeltaTime) {
 
 void APageSystem::IncrementPages() {
 	CollectedPages++;
-	GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Green, FString::Printf(TEXT("Pages: %d/%d"), CollectedPages, AllPages));
+	GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Green, FString::Printf(TEXT("Pages: %d/%d"), CollectedPages, NUMBER_OF_PAGES));
 }
 
 

@@ -19,6 +19,7 @@ void APageEntity::BeginPlay() {
 
 void APageEntity::Tick(float DeltaTime) {
 	Super::Tick(DeltaTime);
+	
 }
 
 void APageEntity::PickUpPage() {
