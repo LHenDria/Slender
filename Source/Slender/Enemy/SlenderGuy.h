@@ -16,6 +16,7 @@ public:
 	ASlenderGuy();
 	void Teleport();
 	FVector PLocation;
+	FRotator FacingRotator;
 	UPROPERTY(EditAnywhere)
 	float TP_Rate = 2;
 

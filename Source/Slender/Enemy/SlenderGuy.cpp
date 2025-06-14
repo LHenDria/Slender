@@ -2,6 +2,7 @@
 #include "SlenderGuy.h"
 
 #include "Kismet/GameplayStatics.h"
+#include "Kismet/KismetMathLibrary.h"
 #include "Slender/Player/PlayerEntity.h"
 
 
@@ -11,13 +12,25 @@ void ASlenderGuy::Teleport()
 	float randomy = 400 + rand() % 1000;
 	float direction = rand() % (8 + 1) - 1;
 	if (direction <=2)
+	{
 		SetActorLocation(PLocation + FVector(randomx,randomy,0.f));
+		SetActorRotation(FacingRotator);
+	}
 	else if (2 < direction && direction <= 4)
+	{
 		SetActorLocation(PLocation + FVector(-randomx,-randomy,0.f));
+		SetActorRotation(FacingRotator);
+	}
 	else if (4 < direction && direction <= 6)
+	{
 		SetActorLocation(PLocation + FVector(-randomx,randomy,0.f));
+		SetActorRotation(FacingRotator);
+	}
 	else
+	{
 		SetActorLocation(PLocation + FVector(randomx,-randomy,0.f));
+		SetActorRotation(FacingRotator);
+	}
 }
 
 
@@ -33,7 +46,6 @@ ASlenderGuy::ASlenderGuy()
 void ASlenderGuy::BeginPlay()
 {
 	Super::BeginPlay();
-
 	ACharacter* myCharacter = UGameplayStatics::GetPlayerCharacter(GetWorld(), 0);
 	PLocation = myCharacter->GetActorLocation();
 	GetWorldTimerManager().SetTimer(TimerHandle, this, &ASlenderGuy::Teleport, TP_Rate, true);
@@ -45,5 +57,6 @@ void ASlenderGuy::Tick(float DeltaTime)
 	Super::Tick(DeltaTime);
 	ACharacter* myCharacter = UGameplayStatics::GetPlayerCharacter(GetWorld(), 0);
 	PLocation = myCharacter->GetActorLocation();
+	FacingRotator = UKismetMathLibrary::FindLookAtRotation(PLocation, GetActorLocation());
 }
 

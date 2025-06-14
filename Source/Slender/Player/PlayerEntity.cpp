@@ -32,7 +32,7 @@ void APlayerEntity::BeginPlay() {
 void APlayerEntity::Tick(float DeltaTime) {
 	Super::Tick(DeltaTime);
 	distance = FVector::Dist(this->GetActorLocation(), guy->GetActorLocation());
-	if (distance < 400)
+	if (distance < 300)
 		GetWorldTimerManager().UnPauseTimer(TimerHandle);
 }
 
