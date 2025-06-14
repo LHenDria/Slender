@@ -17,7 +17,7 @@ protected:
 	class UButton* RetryButton;
 
 	virtual void NativeConstruct() override;
-
+	
 	UFUNCTION()
 	void OnClicked();
 };
