@@ -1,8 +1,12 @@
 #include "Slender/Player/PlayerEntity.h"
+
+#include "Blueprint/UserWidget.h"
 #include "Camera/CameraComponent.h"
 #include "Components/SpotLightComponent.h"
 #include "GameFramework/CharacterMovementComponent.h"
+#include "Kismet/GameplayStatics.h"
 #include "Slender/Pages/PageEntity.h"
+
 
 APlayerEntity::APlayerEntity() {
 	PrimaryActorTick.bCanEverTick = true;
@@ -19,11 +23,17 @@ APlayerEntity::APlayerEntity() {
 
 void APlayerEntity::BeginPlay() {
 	Super::BeginPlay();
-	
+	guy = static_cast<ASlenderGuy*>(UGameplayStatics::GetActorOfClass(GetWorld(), ASlenderGuy::StaticClass()));
+	GameOverScreen = CreateWidget(GetWorld(), UserWidget);
+	GetWorldTimerManager().SetTimer(TimerHandle, this, &APlayerEntity::GameOverState, 3, false);
+	GetWorldTimerManager().PauseTimer(TimerHandle);
 }
 
 void APlayerEntity::Tick(float DeltaTime) {
 	Super::Tick(DeltaTime);
+	distance = FVector::Dist(this->GetActorLocation(), guy->GetActorLocation());
+	if (distance < 400)
+		GetWorldTimerManager().UnPauseTimer(TimerHandle);
 }
 
 void APlayerEntity::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent) {
@@ -85,4 +95,15 @@ void APlayerEntity::DetectPage() {
 			page->PickUpPage();
 		}
 	}
+}
+
+void APlayerEntity::GameOverState()
+{
+	UE_LOG(LogTemp, Display, TEXT("Game Over"));
+	DestroyPlayerInputComponent();
+	Camera->DestroyComponent();
+	APlayerController* MyController = GetWorld()->GetFirstPlayerController();
+	MyController->bShowMouseCursor = true;
+	MyController->bEnableClickEvents = true;
+	GameOverScreen->AddToViewport();
 }

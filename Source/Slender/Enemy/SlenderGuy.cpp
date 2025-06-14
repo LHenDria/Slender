@@ -1,5 +1,3 @@
-// Fill out your copyright notice in the Description page of Project Settings.
-
 
 #include "SlenderGuy.h"
 
@@ -9,8 +7,8 @@
 
 void ASlenderGuy::Teleport()
 {
-	float randomx = 300 + rand() % 1000;
-	float randomy = 300 + rand() % 1000;
+	float randomx = 400 + rand() % 1000;
+	float randomy = 400 + rand() % 1000;
 	float direction = rand() % (8 + 1) - 1;
 	if (direction <=2)
 		SetActorLocation(PLocation + FVector(randomx,randomy,0.f));
