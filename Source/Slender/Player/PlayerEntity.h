@@ -14,8 +14,11 @@ public:
 	APlayerEntity();
 	ASlenderGuy* guy;
 	FTimerHandle TimerHandle;
+	FTimerHandle FlashlightTimer;
 	UFUNCTION(BlueprintCallable)
 	void GameOverState();
+	void DisableFlash();
+	
 protected:
 	virtual void BeginPlay() override;
 	
@@ -38,6 +41,8 @@ protected:
 	float MoveSpeed = 500.0f;
 	UPROPERTY(EditAnywhere)
 	float SprintSpeed = 800.0f;
+	UPROPERTY(EditAnywhere)
+	float FlashlightBattery = 60;
 	
 	void MoveX(float Input);
 	void MoveY(float Input);
