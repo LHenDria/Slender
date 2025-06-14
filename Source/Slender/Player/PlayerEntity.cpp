@@ -5,7 +5,9 @@
 #include "Components/SpotLightComponent.h"
 #include "GameFramework/CharacterMovementComponent.h"
 #include "Kismet/GameplayStatics.h"
+#include "Slender/Enemy/SlenderGuyMovementSystem.h"
 #include "Slender/Pages/PageEntity.h"
+#include "Slender/Pages/PageSystem.h"
 
 
 APlayerEntity::APlayerEntity() {
@@ -23,17 +25,67 @@ APlayerEntity::APlayerEntity() {
 
 void APlayerEntity::BeginPlay() {
 	Super::BeginPlay();
-	guy = static_cast<ASlenderGuy*>(UGameplayStatics::GetActorOfClass(GetWorld(), ASlenderGuy::StaticClass()));
+	this->guy = static_cast<ASlenderGuy*>(UGameplayStatics::GetActorOfClass(GetWorld(), ASlenderGuy::StaticClass()));
+	this->PageSystem = static_cast<APageSystem*>(UGameplayStatics::GetActorOfClass(GetWorld(), APageSystem::StaticClass()));
+
 	GameOverScreen = CreateWidget(GetWorld(), UserWidget);
-	GetWorldTimerManager().SetTimer(TimerHandle, this, &APlayerEntity::GameOverState, 3, false);
-	GetWorldTimerManager().PauseTimer(TimerHandle);
 }
+
+bool APlayerEntity::CheckIfSlenderInSight() {
+	if (!Flashlight->IsVisible()) {
+		return false;
+	}
+	FVector flashlight_origin = Flashlight->GetComponentLocation();
+	FVector flashlight_direction = Flashlight->GetForwardVector();
+	float max_distance = Flashlight->AttenuationRadius;
+	float cone_angle = Flashlight->OuterConeAngle;
+	
+	FVector ToSlender = (guy->GetActorLocation() - flashlight_origin);
+	float distance = ToSlender.Size();
+
+	if (distance <= max_distance) {
+		ToSlender.Normalize();
+		float dot = FVector::DotProduct(flashlight_direction, ToSlender);
+		float angle = FMath::RadiansToDegrees(FMath::Acos(dot));
+
+		if (angle <= cone_angle) {
+			return true;
+		}
+	}
+	return false;
+}
+
+bool APlayerEntity::CheckIfSlenderIsClose() {
+	FVector player_location = this->GetActorLocation();
+
+	float distance = FVector::Dist(player_location, guy->GetActorLocation());
+	if (distance <= 400.0f) {
+		return true;
+	}
+	return false;
+}
+
 
 void APlayerEntity::Tick(float DeltaTime) {
 	Super::Tick(DeltaTime);
-	distance = FVector::Dist(this->GetActorLocation(), guy->GetActorLocation());
-	if (distance < 400)
-		GetWorldTimerManager().UnPauseTimer(TimerHandle);
+	
+	if (CheckIfSlenderInSight() || CheckIfSlenderIsClose()) {
+		if (!GetWorldTimerManager().IsTimerActive(HealthDamageTimer)) {
+			GetWorldTimerManager().ClearTimer(HealthRestoreTimer);
+			GetWorldTimerManager().SetTimer(HealthDamageTimer, this, &APlayerEntity::LowerHealth, 0.5f,true);
+		}
+	} else {
+		if (!GetWorldTimerManager().IsTimerActive(HealthRestoreTimer)) {
+			GetWorldTimerManager().ClearTimer(HealthDamageTimer);
+			GetWorldTimerManager().SetTimer(HealthRestoreTimer, this, &APlayerEntity::RestoreHealth, 1.0f,true);
+		}
+	}
+	if (this->IsOverlappingActor(guy)) {
+		this->Health = 0;
+	}
+	if (this->Health <= 0) {
+		GameOverState();
+	}
 }
 
 void APlayerEntity::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent) {
@@ -97,8 +149,7 @@ void APlayerEntity::DetectPage() {
 	}
 }
 
-void APlayerEntity::GameOverState()
-{
+void APlayerEntity::GameOverState() {
 	UE_LOG(LogTemp, Display, TEXT("Game Over"));
 	DestroyPlayerInputComponent();
 	Camera->DestroyComponent();
@@ -106,4 +157,22 @@ void APlayerEntity::GameOverState()
 	MyController->bShowMouseCursor = true;
 	MyController->bEnableClickEvents = true;
 	GameOverScreen->AddToViewport();
+}
+
+void APlayerEntity::LowerHealth() {
+	Health = Health - SlenderHealthLossPerSecond[PageSystem->GetPages()] / 2;
+	GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Yellow, TEXT("Slendy in sight, uh oh."));
+	GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Green, FString::Printf(TEXT("Took damage: %d"), SlenderHealthLossPerSecond[PageSystem->GetPages()] / 2));
+	GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Yellow, FString::Printf(TEXT("Heatlh: %d"), this->Health));
+}
+
+void APlayerEntity::RestoreHealth() {
+	if (this->Health < 200) {
+		this->Health = this->Health + 20;
+		GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Green, TEXT("Przysyla mnie Lewus, przynioslem ci wode.!"));
+		GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Yellow, FString::Printf(TEXT("Heatlh: %d"), this->Health));
+		if (this->Health > 200) {
+			this->Health = 200;
+		}
+	}
 }

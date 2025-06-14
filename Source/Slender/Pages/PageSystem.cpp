@@ -26,4 +26,8 @@ void APageSystem::IncrementPages() {
 	GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Green, FString::Printf(TEXT("Pages: %d/%d"), CollectedPages, NUMBER_OF_PAGES));
 }
 
+int APageSystem::GetPages() {
+	return this->CollectedPages;
+}
+
 

@@ -13,6 +13,7 @@ public:
 	APageSystem();
 	virtual void Tick(float DeltaTime) override;
 	void IncrementPages();
+	int GetPages();
 
 protected:
 	virtual void BeginPlay() override;
