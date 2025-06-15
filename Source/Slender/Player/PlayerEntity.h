@@ -43,6 +43,8 @@ protected:
 	FTimerHandle JumpscareTimer;
 	bool trigger = false;
 
+	bool isOutOfBattery = false;
+
 	UPROPERTY(EditAnywhere)
 	int Health = 200;
 	UPROPERTY(EditAnywhere)
@@ -50,7 +52,7 @@ protected:
 	UPROPERTY(EditAnywhere)
 	float SprintSpeed = 800.0f;
 	UPROPERTY(EditAnywhere)
-	float FlashlightBattery = 300.0f;
+	float FlashlightBattery = 600.0f;
 	UPROPERTY(EditAnywhere)
 	USoundBase* Footstep;
 	UPROPERTY(EditAnywhere)

@@ -3,7 +3,6 @@
 
 #include "Slender/Player/StaticScreen.h"
 
-void UStaticScreen::NativeConstruct()
-{
+void UStaticScreen::NativeConstruct() {
 	Super::NativeConstruct();
 }

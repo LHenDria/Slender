@@ -27,7 +27,6 @@ APlayerEntity::APlayerEntity() {
 
 void APlayerEntity::BeginPlay() {
 	Super::BeginPlay();
-	Flashlight->Activate();
 	this->guy = static_cast<ASlenderGuy*>(UGameplayStatics::GetActorOfClass(GetWorld(), ASlenderGuy::StaticClass()));
 	this->PageSystem = static_cast<APageSystem*>(UGameplayStatics::GetActorOfClass(GetWorld(), APageSystem::StaticClass()));
 	GetWorldTimerManager().SetTimer(FlashlightTimer, this, &APlayerEntity::DisableFlash, FlashlightBattery, false);
@@ -153,20 +152,21 @@ void APlayerEntity::StopSprint() {
 }
 
 void APlayerEntity::ToggleFlashlight() {
-	if (Flashlight->IsActive())
-	{
-		UGameplayStatics::PlaySound2D(this, FlashClick, 0.7f);
-		Flashlight->ToggleVisibility();
-		GetWorldTimerManager().PauseTimer(FlashlightTimer);
-		if (Flashlight->IsVisible())
-			GetWorldTimerManager().UnPauseTimer(FlashlightTimer);
+	if (isOutOfBattery) {
+		return;
+	}
+	UGameplayStatics::PlaySound2D(this, FlashClick, 0.7f);
+	Flashlight->ToggleVisibility();
+	GetWorldTimerManager().PauseTimer(FlashlightTimer);
+	if (Flashlight->IsVisible()) {
+		GetWorldTimerManager().UnPauseTimer(FlashlightTimer);
 	}
 }
 
 void APlayerEntity::DisableFlash()
 {
-	Flashlight->ToggleVisibility();
-	Flashlight->Deactivate();
+	Flashlight->SetVisibility(false);
+	this->isOutOfBattery = true;
 }
 
 void APlayerEntity::DetectPage() {
