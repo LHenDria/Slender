@@ -2,6 +2,7 @@
 
 #include "SlenderGuyMovementNode.h"
 #include "Kismet/GameplayStatics.h"
+#include "Kismet/KismetMathLibrary.h"
 #include "Kismet/KismetSystemLibrary.h"
 #include "Slender/Pages/PageSystem.h"
 
@@ -178,7 +179,9 @@ void ASlenderGuyMovementSystem::TeleportSlender() {
 	for (int i = 0; i < valid_nodes.Num(); ++i) {
 		choose_weights += weights[i];
 		if (random_node <= choose_weights) {
+			FRotator player_direction = UKismetMathLibrary::FindLookAtRotation(valid_nodes[i]->GetActorLocation(), slender->GetActorLocation());
 			slender->SetActorLocation(valid_nodes[i]->GetActorLocation());
+			slender->SetActorRotation(player_direction);
 			return;
 		}
 	}
@@ -194,7 +197,7 @@ void ASlenderGuyMovementSystem::Tick(float DeltaTime) {
 	SlenderWeightCollision();
 	SlenderWeightSafeZone();
 	if (!GetWorldTimerManager().IsTimerActive(SlenderTeleportTimer)) {
-		GetWorldTimerManager().SetTimer(SlenderTeleportTimer, this, &ASlenderGuyMovementSystem::TeleportSlender, SlenderTeleportInSeconds[page_system->GetPages()],true);
+		GetWorldTimerManager().SetTimer(SlenderTeleportTimer, this, &ASlenderGuyMovementSystem::TeleportSlender, SlenderTeleportInSeconds[page_system->GetPages()],false);
 	}
 }
 

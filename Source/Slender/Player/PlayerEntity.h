@@ -31,10 +31,17 @@ protected:
 	class TSubclassOf<UUserWidget> UserWidget;
 	UPROPERTY()
 	class UUserWidget* GameOverScreen;
+	UPROPERTY(EditAnywhere, Category = "UI")
+	class TSubclassOf<UUserWidget> StaticWidget;
+	UPROPERTY()
+	class UUserWidget* Static;
 	UPROPERTY()
 	class APageSystem* PageSystem;
+	FTimerHandle FlashlightTimer;
 	FTimerHandle HealthDamageTimer;
 	FTimerHandle HealthRestoreTimer;
+	FTimerHandle JumpscareTimer;
+	bool trigger = false;
 
 	UPROPERTY(EditAnywhere)
 	int Health = 200;
@@ -42,6 +49,15 @@ protected:
 	float MoveSpeed = 500.0f;
 	UPROPERTY(EditAnywhere)
 	float SprintSpeed = 800.0f;
+	UPROPERTY(EditAnywhere)
+	float FlashlightBattery = 300.0f;
+	UPROPERTY(EditAnywhere)
+	USoundBase* Footstep;
+	UPROPERTY(EditAnywhere)
+	USoundBase* FlashClick;
+	UPROPERTY(EditAnywhere)
+	USoundBase* StaticNoise;
+	
 	
 	void MoveX(float Input);
 	void MoveY(float Input);
@@ -50,10 +66,12 @@ protected:
 	void StartSprint();
 	void StopSprint();
 	void ToggleFlashlight();
+	void DisableFlash();
 	void DetectPage();
 	void GameOverState();
 	void LowerHealth();
 	void RestoreHealth();
 	bool CheckIfSlenderInSight();
 	bool CheckIfSlenderIsClose();
+	void Jumpscare();
 };

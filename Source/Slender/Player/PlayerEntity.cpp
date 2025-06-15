@@ -2,9 +2,11 @@
 
 #include "Blueprint/UserWidget.h"
 #include "Camera/CameraComponent.h"
+#include "Components/AudioComponent.h"
 #include "Components/SpotLightComponent.h"
 #include "GameFramework/CharacterMovementComponent.h"
 #include "Kismet/GameplayStatics.h"
+#include "Kismet/KismetMathLibrary.h"
 #include "Slender/Enemy/SlenderGuyMovementSystem.h"
 #include "Slender/Pages/PageEntity.h"
 #include "Slender/Pages/PageSystem.h"
@@ -25,10 +27,12 @@ APlayerEntity::APlayerEntity() {
 
 void APlayerEntity::BeginPlay() {
 	Super::BeginPlay();
+	Flashlight->Activate();
 	this->guy = static_cast<ASlenderGuy*>(UGameplayStatics::GetActorOfClass(GetWorld(), ASlenderGuy::StaticClass()));
 	this->PageSystem = static_cast<APageSystem*>(UGameplayStatics::GetActorOfClass(GetWorld(), APageSystem::StaticClass()));
-
+	GetWorldTimerManager().SetTimer(FlashlightTimer, this, &APlayerEntity::DisableFlash, FlashlightBattery, false);
 	GameOverScreen = CreateWidget(GetWorld(), UserWidget);
+	Static = CreateWidget(GetWorld(), StaticWidget);
 }
 
 bool APlayerEntity::CheckIfSlenderInSight() {
@@ -65,6 +69,17 @@ bool APlayerEntity::CheckIfSlenderIsClose() {
 	return false;
 }
 
+void APlayerEntity::Jumpscare()
+{
+	Static->SetColorAndOpacity(FLinearColor(1,1,1,2));
+	Static->AddToViewport();
+	this->GetCharacterMovement()->GravityScale = 0;
+	this->SetActorLocation(this->GetActorLocation() + Flashlight->GetForwardVector() * 100 + FVector(0, 0, 83));
+	UGameplayStatics::PlaySound2D(this, StaticNoise, 1);
+	FTimerHandle jumpscareTimerHandle;
+	GetWorldTimerManager().SetTimer(jumpscareTimerHandle, this, &APlayerEntity::GameOverState, 1.3f, false);
+}
+
 
 void APlayerEntity::Tick(float DeltaTime) {
 	Super::Tick(DeltaTime);
@@ -83,8 +98,18 @@ void APlayerEntity::Tick(float DeltaTime) {
 	if (this->IsOverlappingActor(guy)) {
 		this->Health = 0;
 	}
-	if (this->Health <= 0) {
-		GameOverState();
+	if (this->Health <= 0)
+	{
+		if (!GetWorldTimerManager().IsTimerActive(JumpscareTimer) && trigger == false)
+		{
+			GetWorldTimerManager().SetTimer(JumpscareTimer, this, &APlayerEntity::Jumpscare, 2.0f, false);
+			guy->SetActorLocationAndRotation((this->GetActorLocation() + Camera->GetForwardVector() * 200), UKismetMathLibrary::FindLookAtRotation(this->GetActorLocation(), guy->GetActorLocation()));
+			DestroyPlayerInputComponent();
+			Static->SetColorAndOpacity(FLinearColor(1,1,1,1));
+			Static->AddToViewport();
+			UGameplayStatics::PlaySound2D(this, StaticNoise, 0.6f);
+			trigger = true;
+		}
 	}
 }
 
@@ -128,7 +153,20 @@ void APlayerEntity::StopSprint() {
 }
 
 void APlayerEntity::ToggleFlashlight() {
+	if (Flashlight->IsActive())
+	{
+		UGameplayStatics::PlaySound2D(this, FlashClick, 0.7f);
+		Flashlight->ToggleVisibility();
+		GetWorldTimerManager().PauseTimer(FlashlightTimer);
+		if (Flashlight->IsVisible())
+			GetWorldTimerManager().UnPauseTimer(FlashlightTimer);
+	}
+}
+
+void APlayerEntity::DisableFlash()
+{
 	Flashlight->ToggleVisibility();
+	Flashlight->Deactivate();
 }
 
 void APlayerEntity::DetectPage() {
@@ -151,7 +189,6 @@ void APlayerEntity::DetectPage() {
 
 void APlayerEntity::GameOverState() {
 	UE_LOG(LogTemp, Display, TEXT("Game Over"));
-	DestroyPlayerInputComponent();
 	Camera->DestroyComponent();
 	APlayerController* MyController = GetWorld()->GetFirstPlayerController();
 	MyController->bShowMouseCursor = true;
@@ -164,6 +201,10 @@ void APlayerEntity::LowerHealth() {
 	GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Yellow, TEXT("Slendy in sight, uh oh."));
 	GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Green, FString::Printf(TEXT("Took damage: %d"), SlenderHealthLossPerSecond[PageSystem->GetPages()] / 2));
 	GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Yellow, FString::Printf(TEXT("Heatlh: %d"), this->Health));
+	Static->SetColorAndOpacity(FLinearColor(1,1,1,0.5));
+	Static->AddToViewport();
+	UGameplayStatics::PlaySound2D(this, StaticNoise, 0.4f);
+	
 }
 
 void APlayerEntity::RestoreHealth() {
@@ -171,6 +212,7 @@ void APlayerEntity::RestoreHealth() {
 		this->Health = this->Health + 20;
 		GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Green, TEXT("Przysyla mnie Lewus, przynioslem ci wode.!"));
 		GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Yellow, FString::Printf(TEXT("Heatlh: %d"), this->Health));
+		Static->RemoveFromViewport();
 		if (this->Health > 200) {
 			this->Health = 200;
 		}
