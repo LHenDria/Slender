@@ -1,15 +1,11 @@
-// Fill out your copyright notice in the Description page of Project Settings.
-
 #pragma once
 
 #include "CoreMinimal.h"
 #include "Blueprint/UserWidget.h"
 #include "GameOverState.generated.h"
 
-
 UCLASS()
-class SLENDER_API UGameOverState : public UUserWidget
-{
+class SLENDER_API UGameOverState : public UUserWidget {
 	GENERATED_BODY()
 
 protected:

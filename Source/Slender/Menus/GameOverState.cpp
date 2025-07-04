@@ -1,20 +1,17 @@
-// Fill out your copyright notice in the Description page of Project Settings.
-
-
 #include "Slender/Menus/GameOverState.h"
 
 #include "Components/Button.h"
 #include "Kismet/KismetSystemLibrary.h"
 
-void UGameOverState::NativeConstruct()
-{
-	if (RetryButton)
+void UGameOverState::NativeConstruct() {
+	if (RetryButton) {
 		RetryButton->OnClicked.AddDynamic(this, &UGameOverState::OnClicked);
+	}
 }
 
-void UGameOverState::OnClicked()
-{
+void UGameOverState::OnClicked() {
 	UWorld* World = GetWorld();
-	if (World)
+	if (World) {
 		UKismetSystemLibrary::ExecuteConsoleCommand(World, TEXT("RestartLevel"));
+	}
 }

@@ -27,50 +27,73 @@ protected:
 	class USpotLightComponent* Flashlight;
 	UPROPERTY(EditAnywhere)
 	class ASlenderGuy* guy;
+	
 	UPROPERTY(EditAnywhere, Category = "UI")
 	class TSubclassOf<UUserWidget> UserWidget;
 	UPROPERTY()
 	class UUserWidget* GameOverScreen;
+
+	UPROPERTY(EditAnywhere, Category = "UI")
+	class TSubclassOf<UUserWidget> WinnerWidget;
+	UPROPERTY()
+	class UUserWidget* WinnerScreen;
+	
 	UPROPERTY(EditAnywhere, Category = "UI")
 	class TSubclassOf<UUserWidget> StaticWidget;
 	UPROPERTY()
 	class UUserWidget* Static;
+	
 	UPROPERTY()
 	class APageSystem* PageSystem;
 	FTimerHandle FlashlightTimer;
 	FTimerHandle HealthDamageTimer;
 	FTimerHandle HealthRestoreTimer;
 	FTimerHandle JumpscareTimer;
+	FTimerHandle WinnerTimer;
 	bool trigger = false;
 
 	bool isOutOfBattery = false;
-
+	bool should_be_flipped = true;
+	bool should_static_play = false;
+	
 	UPROPERTY(EditAnywhere)
 	int Health = 200;
 	UPROPERTY(EditAnywhere)
-	float MoveSpeed = 500.0f;
+	float MoveSpeed = 180.0f;
 	UPROPERTY(EditAnywhere)
-	float SprintSpeed = 800.0f;
+	float SprintSpeed = 250.0f;
 	UPROPERTY(EditAnywhere)
 	float FlashlightBattery = 600.0f;
-	UPROPERTY(EditAnywhere)
-	USoundBase* Footstep;
+	
 	UPROPERTY(EditAnywhere)
 	USoundBase* FlashClick;
 	UPROPERTY(EditAnywhere)
 	USoundBase* StaticNoise;
+	UPROPERTY(EditAnywhere)
+	USoundBase* PagePickup;
 	
+	UPROPERTY(EditAnywhere)
+	USoundBase* Steps1;
+	UPROPERTY(EditAnywhere)
+	USoundBase* Steps2;
+	UPROPERTY(EditAnywhere)
+	USoundBase* Steps3;
+	UPROPERTY()
+	UAudioComponent* StepsAudioComponent;
 	
+	void PlayStepsSound();
 	void MoveX(float Input);
 	void MoveY(float Input);
 	void TurnX(float Input);
 	void TurnY(float Input);
+	void ExitGame();
 	void StartSprint();
 	void StopSprint();
 	void ToggleFlashlight();
 	void DisableFlash();
 	void DetectPage();
 	void GameOverState();
+	void WinnerState();
 	void LowerHealth();
 	void RestoreHealth();
 	bool CheckIfSlenderInSight();

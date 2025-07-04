@@ -42,7 +42,7 @@ protected:
 	UPROPERTY(EditAnywhere)
 	APageSystem *page_system;
 	UPROPERTY(EditAnywhere)
-	int NumberOfNodesOnSide = 12;
+	int NumberOfNodesOnSide = 18;
 	UPROPERTY(EditAnywhere)
-	float SpacingBetweenNodes = 250.0f;
+	float SpacingBetweenNodes = 120.0f;
 };
