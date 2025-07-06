@@ -254,14 +254,14 @@ void APlayerEntity::LowerHealth() {
 }
 
 void APlayerEntity::RestoreHealth() {
-	if (this->Health < 200) {
+	if (this->Health < 300) {
 		this->Health = this->Health + 20;
 		GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Green, TEXT("Przysyla mnie Lewus, przynioslem ci wode.!"));
 		GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Yellow, FString::Printf(TEXT("Heatlh: %d"), this->Health));
 		should_static_play = false;
 		Static->RemoveFromViewport();
-		if (this->Health > 200) {
-			this->Health = 200;
+		if (this->Health > 300) {
+			this->Health = 300;
 		}
 	}
 }

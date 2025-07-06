@@ -57,11 +57,11 @@ protected:
 	bool should_static_play = false;
 	
 	UPROPERTY(EditAnywhere)
-	int Health = 200;
+	int Health = 300;
 	UPROPERTY(EditAnywhere)
-	float MoveSpeed = 180.0f;
+	float MoveSpeed = 380.0f;
 	UPROPERTY(EditAnywhere)
-	float SprintSpeed = 250.0f;
+	float SprintSpeed = 450.0f;
 	UPROPERTY(EditAnywhere)
 	float FlashlightBattery = 600.0f;
 	
